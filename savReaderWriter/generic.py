@@ -431,13 +431,25 @@ class Generic(object):
     @property
     def fileCodePage(self):
         """This function provides the Windows code page number of the encoding
-        applicable to a file."""
+        applicable to a file.
+        
+        Returns
+        -------
+        codepage : int or None
+            Windows code page number of the encoding applicable to the file
+            If no encoding information is present (file was created with 
+            SPSS v14 or older), None is returned"""
         nCodePage = c_int()
         func = self.spssio.spssGetFileCodePage
         func.argtypes = [c_int, POINTER(c_int)] 
         retcode = func(self.fh, byref(nCodePage))
         checkErrsWarns("Problem getting file codepage", retcode)
+        # SPSS I/O incorrectly returns 65001 when encoding info is absent,
+        # which is the case for files created with SPSS v14 or earlier
+        if self.spssVersion.major < 15:
+            return None
         return nCodePage.value
+        
 
     def isCompatibleEncoding(self):
         """This function determines whether the file and interface encoding
@@ -501,7 +513,20 @@ class Generic(object):
         The encoding is returned as an IANA encoding name, such as
         ISO-8859-1, which is then converted to the corresponding Python
         codec name. If the file contains no file encoding, the locale's
-        preferred encoding is returned"""
+        preferred encoding is returned
+        
+        Returns
+        -------
+        encoding : bytestring or None
+            The encoding applicable to the file. If no encoding information 
+            is present (SPSS v14 or older), None is returned
+
+        See also
+        --------
+        savReaderWriter.Generic.encoding : similar, but tries to guess 
+            the encoding when it is not present in the header
+        """
+
         try:
             pszEncoding = create_string_buffer(20)  # is 20 enough??
             func = self.spssio.spssGetFileEncoding
@@ -514,11 +539,46 @@ class Generic(object):
             else:
                 iana_code = rawEncoding.replace("-", "_")
             fileEncoding = iana_codes[iana_code]
+            # SPSS I/O incorrectly returns utf-8 when encoding info is absent,
+            # which is the case for files created with SPSS v14 or earlier
+            if self.spssVersion.major < 15:
+                return None
             return fileEncoding
         except KeyError:
             print ("NOTE. IANA coding lookup error. Code %r " % iana_code +
                    "does not map to any Python codec.")
             return locale.getpreferredencoding()
+            
+    @property
+    def encoding(self):
+        """This function is similar to `fileEncoding`, but it tries to guess 
+        the encoding if this information is not present in the file header
+        (ie., in files created with SPSS v14 or earlier). If this is the case,
+        and the file was created under Windows, the Windows codepage associated
+        with the current locale is returned. If the current locale does not 
+        have a codepage (e.g., Georgian, Armenian), or if the file was created 
+        on another OS, `locale.getpreferredencoding()` is returned.
+        
+        Returns
+        -------
+        encoding : bytestring
+            The encoding applicable to the file
+        """
+        encoding = self.fileEncoding
+        pref_enc = locale.getpreferredencoding()
+        if encoding:
+            return encoding
+
+        if "win" in self.systemString.lower():
+            if sys.platform.startswith("win"):
+                return pref_enc
+            else:
+                from winlocale import locale2codepage
+                loc = locale.getlocale()[0]
+                encoding = locale2codepage.get(loc, pref_enc) or pref_enc
+                return encoding
+        else:
+            return pref_enc
 
     @property
     def record(self):
