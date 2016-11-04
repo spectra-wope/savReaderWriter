@@ -3,8 +3,9 @@
 
 import sys
 import os
-import tempfile
 import unittest
+from tempfile import gettempdir
+from os.path import join
 
 from savReaderWriter import SavWriter
 
@@ -13,7 +14,7 @@ from savReaderWriter import SavWriter
 class test_SavWriter_encode_SPSSDate(unittest.TestCase):
 
     def setUp(self):
-        self.savFileName = tempfile.mkstemp(suffix=".sav")[1]
+        self.savFileName = join(gettempdir(), "encode_SPSSDate.sav")
 
     def test_date_encoding(self):
         with SavWriter(self.savFileName, [b'date'], {b'date': 0}) as writer:
