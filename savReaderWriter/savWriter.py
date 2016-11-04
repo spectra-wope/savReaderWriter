@@ -205,8 +205,9 @@ class SavWriter(Header):
         self.ioUtf8_ = ioUtf8
         self.pad_8_lookup = self._getPaddingLookupTable(self.varTypes)
         self.pad_string = self._pyWriterow_pad_string(isPy3k)
-        self.bytify = bytify(self.fileEncoding)  # from py3k module
-        self.encoding = self.fileEncoding
+        self.bytify = bytify(self.encoding)  # from py3k module
+        #import pdb; pdb.set_trace()
+        #self.encoding = self.fileEncoding
 
         if self.mode == b"wb":
             self._openWrite(self.savFileName, self.overwrite)

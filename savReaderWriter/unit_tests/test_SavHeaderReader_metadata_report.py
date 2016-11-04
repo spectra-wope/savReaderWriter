@@ -212,14 +212,14 @@ class test_SavHeaderReader_metadata_report(unittest.TestCase):
     @unittest.skipIf(sys.version_info[0] > 2, "No 'unicode' in Python 3")
     def test_SavHeaderReader_report_python2_unicode(self):
         with SavHeaderReader(self.savFileName) as header:
-            encoding = header.fileEncoding
+            encoding = header.encoding
             report_got = unicode(header)
         self.assertEqual(report_expected.decode(encoding), report_got)
 
     @unittest.skipIf(sys.version_info[0] > 2, "No 'unicode' in Python 3")
     def test_SavHeaderReader_report_python2_unicode_ioUtf8(self):
         with SavHeaderReader(self.savFileName_ioUtf8, ioUtf8=True) as header:
-            encoding = header.fileEncoding
+            encoding = header.encoding
             report_got = unicode(header)
         self.assertEqual(report_expected_ioUtf8.decode(encoding), report_got)
 
@@ -227,14 +227,14 @@ class test_SavHeaderReader_metadata_report(unittest.TestCase):
     @unittest.skipIf(sys.version_info[0] == 2, "No bytes method in Python 2")
     def test_SavHReader_report_python3_bytes(self):
         with SavHeaderReader(self.savFileName) as header:
-            encoding = header.fileEncoding
+            encoding = header.encoding
             report_got = bytes(header)
         self.assertEqual(report_expected.encode(encoding), report_got)
 
     @unittest.skipIf(sys.version_info[0] == 2, "No bytes method in Python 2")
     def test_SavHReader_report_python3_bytes_ioUtf8(self):
         with SavHeaderReader(self.savFileName_ioUtf8, ioUtf8=True) as header:
-            encoding = header.fileEncoding
+            encoding = header.encoding
             report_got = bytes(header)
         self.assertEqual(report_expected_ioUtf8.encode(encoding), report_got)
 

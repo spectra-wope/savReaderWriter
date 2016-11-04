@@ -569,7 +569,7 @@ class Generic(object):
         if encoding:
             return encoding
 
-        if "win" in self.systemString.lower():
+        if b"win" in self.systemString.lower():
             if sys.platform.startswith("win"):
                 return pref_enc
             else:

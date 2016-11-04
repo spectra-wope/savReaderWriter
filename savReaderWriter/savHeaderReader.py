@@ -61,7 +61,7 @@ class SavHeaderReader(Header):
     def __str__(self):
         """ This function returns a report of the SPSS data dictionary
         (i.e., the header), in the encoding of the spss file"""
-        return unicode(self).encode(self.fileEncoding)
+        return unicode(self).encode(self.encoding)
 
     def __unicode__(self):
         """ This function returns a report of the SPSS data dictionary
@@ -138,7 +138,7 @@ class SavHeaderReader(Header):
             v =  v if self.ioUtf8 else v.decode(enc)
         except AttributeError:
             #v = ", ".join(map(str, v)) if isinstance(v, list) else v
-            enc = self.fileEncoding
+            enc = self.encoding
             func = lambda x: x.decode(enc) if isinstance(x, bytes) else str(x)
             v = ", ".join(map(func, v)) if isinstance(v, list) else v
         try:
@@ -152,7 +152,7 @@ class SavHeaderReader(Header):
         of the active Spss dataset. The parameter 'dataDict' is the return
         value of dataDictionary()"""
         # Yeah I know: what a mess! ;-)
-        report, enc = [], self.fileEncoding
+        report, enc = [], self.encoding
         for kwd, allValues in sorted(dataDict.items()):
             report.append("#" + kwd.upper())
             if hasattr(allValues, "items"):

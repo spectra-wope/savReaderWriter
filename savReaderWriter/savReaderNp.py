@@ -255,7 +255,7 @@ class SavReaderNp(SavReader):
     def uvarNames(self):
         """Returns a list of variable names, as unicode strings"""
         if self.ioUtf8: return self.varNames
-        return [v.decode(self.fileEncoding) for v in self.varNames]
+        return [v.decode(self.encoding) for v in self.varNames]
 
     @memoized_property
     def uvarTypes(self): 
@@ -263,15 +263,14 @@ class SavReaderNp(SavReader):
         and variable types (values, int). Variable type == 0 indicates 
         numerical values, other values indicate the string length in bytes"""
         if self.ioUtf8: return self.varTypes
-        return {v.decode(self.fileEncoding): t for 
-                v, t in self.varTypes.items()}
+        return {v.decode(self.encoding): t for v, t in self.varTypes.items()}
 
     @memoized_property
     def uformats(self):
         """Returns a dictionary of variable names (keys) and SPSS formats 
         (values), both as unicode strings"""
         if self.ioUtf8: return self.formats
-        encoding = self.fileEncoding
+        encoding = self.encoding
         return {v.decode(encoding): fmt.decode(encoding) for 
                 v, fmt in self.formats.items()}
 
@@ -289,7 +288,7 @@ class SavReaderNp(SavReader):
         titles =  [self.varLabels[v] if self.varLabels[v] else 
                    bytez("col_%03d" % col) for col, v in 
                    enumerate(self.varNames)]
-        return [title.decode(self.fileEncoding) if not 
+        return [title.decode(self.encoding) if not 
                 isinstance(title, unicode) else title for title in titles]
 
     @memoized_property

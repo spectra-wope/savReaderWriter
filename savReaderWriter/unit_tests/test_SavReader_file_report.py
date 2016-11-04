@@ -51,14 +51,14 @@ class test_SavReader_file_report(unittest.TestCase, gocept.testing.assertion.Ell
         data = SavReader(self.savFileName)
         with data:
             report_got = unicode(data)
-            encoding = data.fileEncoding
+            encoding = data.encoding
         self.assertEllipsis(report_expected.decode(encoding), report_got)
 
     @unittest.skipIf(sys.version_info[0] == 2, "No bytes method in Python 2")
     def test_SavReader_report_python3_bytes(self):
         data = SavReader(self.savFileName)
         with data:
-            encoding = data.fileEncoding
+            encoding = data.encoding
             report_got = bytes(data)
         self.assertEllipsis(report_expected.encode(encoding), report_got)
 

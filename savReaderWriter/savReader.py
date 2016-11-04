@@ -177,7 +177,7 @@ class SavReader(Header):
             data = SavReader(savFileName)
             print(str(data))  # Python 3: bytes(data)
             data.close()"""
-        return self.__unicode__().encode(self.fileEncoding)
+        return self.__unicode__().encode(self.encoding)
 
     def __unicode__(self):
         """This function returns a conscise file report of the spss data file.
@@ -477,7 +477,7 @@ class SavReader(Header):
             list_of_lists = data.all(False)
             data.close()"""
         if asNamedtuple:
-            uheader = [item.decode(self.fileEncoding) for item in self.header]
+            uheader = [item.decode(self.encoding) for item in self.header]
             Record = collections.namedtuple("Record", uheader)
             return [Record(*record) for record in iter(self)]
         return [record for record in iter(self)]
@@ -659,7 +659,7 @@ class SavReader(Header):
         kb = float(filesize) / 2**10
         mb = float(filesize) / 2**20
         (fileSize, label) = (mb, "MB") if mb > 1 else (kb, "kB")
-        systemString = self.systemString.decode(self.fileEncoding)
+        systemString = self.systemString.decode(self.encoding)
         spssVersion = ".".join(map(str, self.spssVersion))
         lang, cp = locale.getlocale()
         intEnc = "Utf-8/Unicode" if self.ioUtf8 else "Codepage (%s)" % cp
@@ -667,8 +667,8 @@ class SavReader(Header):
         line = "  %%0%sd. %%s (%%s - %%s)" % len(str(len(self.varNames) + 1))
         for cnt, varName in enumerate(self.varNames):
             lbl = "string" if self.varTypes[varName] > 0 else "numerical"
-            format_ = self.formats[varName].decode(self.fileEncoding)
-            varName = varName.decode(self.fileEncoding) 
+            format_ = self.formats[varName].decode(self.encoding)
+            varName = varName.decode(self.encoding) 
             varlist.append(line % (cnt + 1, varName, format_, lbl))
         info = {"savFileName": self.savFileName,
                 "fileSize": fileSize,
@@ -677,9 +677,9 @@ class SavReader(Header):
                 "nCols": len(self.varNames),
                 "nValues": self.nCases * len(self.varNames),
                 "spssVersion": "%s (%s)" % (systemString, spssVersion),
-                "ioLocale": self.ioLocale.decode(self.fileEncoding),
+                "ioLocale": self.ioLocale.decode(self.encoding),
                 "ioUtf8": intEnc,
-                "fileEncoding": self.fileEncoding,
+                "encoding": self.encoding,
                 "fileCodePage": self.fileCodePage,
                 "isCompatible": "Yes" if self.isCompatibleEncoding() else "No",
                 "local_language": lang,
@@ -695,7 +695,7 @@ class SavReader(Header):
                   "(sep)s" +
                   "*The interface locale is: '%(ioLocale)s'%(sep)s" +
                   "*The interface mode is: %(ioUtf8)s%(sep)s" +
-                  "*The file encoding is: '%(fileEncoding)s' (Code page: " +
+                  "*The file encoding is: '%(encoding)s' (Code page: " +
                   "%(fileCodePage)s)%(sep)s" +
                   "*File encoding and the interface encoding are compatible:" +
                   " %(isCompatible)s%(sep)s" +
@@ -704,7 +704,7 @@ class SavReader(Header):
                   "*The file contains the following variables:%(sep)s" +
                   "%(varlist)s%(sep)s%(asterisks)s%(sep)s") % info
         if hasattr(report, "decode"):
-            report = report.decode(self.fileEncoding)
+            report = report.decode(self.encoding)
         return report
 
     def getHeader(self, selectVars):

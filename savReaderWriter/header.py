@@ -9,7 +9,7 @@ import re
 import time
 import getpass
 import functools
-#import gc
+import copy
 
 from savReaderWriter import *
 from generic import *
@@ -803,7 +803,7 @@ class Header(Generic):
         func = self.spssio.spssSetVariableSets
         func.argtypes = [c_int, c_char_p]   
 
-        encoding = self.fileEncoding
+        encoding = self.encoding
         varSets_ = []
         for varName, varSet in varSets.items():
             if isinstance(varName, bytes):
@@ -1061,7 +1061,7 @@ class Header(Generic):
         It translates the multiple response definition, specified as a
         dictionary, into a string that the IO module can use"""
         # see also issue #23
-        encoding = self.fileEncoding
+        encoding = self.encoding
         mrespDefs = []
         for setName, rest in multRespDefs.items():
             rest = self.encode(rest)
@@ -1074,7 +1074,6 @@ class Header(Generic):
             lblLen = str(len(rest[b"label"]))
             rest[u"lblLen"] = lblLen
             rest[u"label"] = rest.get(b"label", b"").decode(encoding)
-            import copy
             varNames = tuple(copy.deepcopy(rest[b"varNames"]))
             rest[u"varNames"] = b" ".join(varNames).decode(encoding)
 
@@ -1371,16 +1370,15 @@ class Header(Generic):
         or append contains a specific "type 7" record. Returns a dictionary of the
         form: `{subtype_number: (subtype_label, present_or_not)}`, where
         present_or_not is a bool"""
-        subtypes = \
-                 {3: "Release information",
-                  4: "Floating point constants including the system missing value",
-                  5: "Variable set definitions",
-                  6: "Date variable information",
-                  7: "Multiple-response set definitions",
-                  8: "Data Entry for Windows (DEW) information",
-                 10: "TextSmart information",
-                 11: ("Measurement level, column width, and " +
-                      "alignment for each variable")}
+        subtypes = {\
+          3: "Release information",
+          4: "Floating point constants including the system missing value",
+          5: "Variable set definitions",
+          6: "Date variable information",
+          7: "Multiple-response set definitions",
+          8: "Data Entry for Windows (DEW) information",
+         10: "TextSmart information",
+         11: "Measurement level, column width and alignment for each variable"}
         func = self.spssio.spssQueryType7
         func.argtypes = [c_int, c_int, POINTER(c_int)]
 
