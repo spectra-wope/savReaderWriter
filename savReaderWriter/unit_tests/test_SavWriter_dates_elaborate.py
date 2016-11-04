@@ -5,13 +5,17 @@
 ## Read a file containg all the supported date formats
 ##############################################################################
 
-import nose
 import os
-import tempfile
 import sys
 import functools
 import locale
+from tempfile import gettempdir
+from os.path import join
 from time import strftime, strptime
+
+import nose
+from nose.tools import assert_raises
+
 from savReaderWriter import *
 
 if sys.version_info[0] > 2:
@@ -46,7 +50,7 @@ desired_records = \
 # FORMATS x (DTIME14).
 # will display as 10 12:03:00
 
-savFileName = os.path.join(tempfile.gettempdir(), "test_dates.sav")
+savFileName = join(gettempdir(), "test_dates.sav")
 
 def setUp():
     """create a test file"""
@@ -101,6 +105,55 @@ def test_dates_recodeSysmisTo():
 
 def compare_value(desired, actual):
     assert desired == actual
+
+
+# ----------------
+# issue #54 fractional datetimes trigger error which must 
+# be ignored, e.g. DATETIME11.1
+def test_fractional_datetime():
+    savFileName = join(gettempdir(), "test_dates_issue54_1.sav")
+    args = (savFileName, [b'datetime'], {b'datetime': 0})
+    with SavWriter(*args, formats={b'datetime': b"datetime22.1"}) as writer:
+        before = [writer.spssDateTime(b"1952-02-03", "%Y-%m-%d")]
+        writer.writerow(before)
+    with SavReader(savFileName) as reader:
+        after = reader.all(False)[0]
+    assert before != after, "before: %s | after: %s" % (before, after)
+
+def test_fractional_dtime():
+    savFileName = join(gettempdir(), "test_dates_issue54_2.sav")
+    args = (savFileName, [b'dtime'], {b'dtime': 0})
+    with SavWriter(*args, formats={b'dtime': b"dtime13.1"}) as writer:
+        before = [writer.spssDateTime(b"1952-02-03", "%Y-%m-%d")]
+        writer.writerow(before)
+    with SavReader(savFileName, rawMode=True) as reader:
+        after = reader.all(False)[0]
+    assert before == after, "before: %s | after: %s" % (before, after)
+    with SavReader(savFileName) as reader:
+        after = reader.all(False)[0]
+    assert after == [b'134886 00:00:00'], after
+
+def test_fractional_time():
+    savFileName = join(gettempdir(), "test_dates_issue54_3.sav")
+    args = (savFileName, [b'time'], {b'time': 0})
+    with SavWriter(*args, formats={b'time': b"time10.1"}) as writer:
+        before = [writer.spssDateTime(b"23:59:01", "%H:%M:%S")]
+        writer.writerow(before)
+    with SavReader(savFileName, rawMode=True) as reader:
+        after = reader.all(False)[0]
+    assert before == after, "before: %s | after: %s" % (before, after)
+    with SavReader(savFileName) as reader:
+        after = reader.all(False)[0]
+    assert after == [b'23:59:01.000000'], after 
+
+def test_fractional_datetime_wrong():
+    savFileName = join(gettempdir(), "test_dates_issue54_4.sav")
+    args = (savFileName, [b'datetime'], {b'datetime': 0})
+    with assert_raises(ValueError) as error:
+        with SavWriter(*args, formats={b'datetime': b"datime17.1_WRONG"}) as writer:
+            before = [writer.spssDateTime(b"1952-02-03", "%Y-%m-%d")]
+            writer.writerow(before)
+    assert "Unknown format" in str(error.exception), str(error.exception)
 
 
 if __name__ == "__main__":

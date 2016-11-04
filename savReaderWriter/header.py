@@ -452,10 +452,10 @@ class Header(Generic):
             retcode1, retcode2 = funcP(*args), funcW(*args)
             if retcodes.get(retcode1) == "SPSS_INVALID_PRFOR":
                 # invalid PRint FORmat
-                msg = "format for %r misspecified (%r)"
+                msg = "format (name, width or decimals) for %r misspecified (%r)"
                 raise SPSSIOError(msg % (varName, format_), retcode1)
-            if retcode1:
-                msg = "Problem setting format_ %r for %r" % (format_, varName)
+            elif retcode1:
+                msg = "Problem setting format %r for %r" % (format_, varName)
                 checkErrsWarns(msg, retcode1)
 
     def _getMissingValue(self, varName):
