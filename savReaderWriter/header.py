@@ -800,10 +800,9 @@ class Header(Generic):
         if not varSets:
             return
 
-        func = self.spssio.spssSetVariableSets
-        func.argtypes = [c_int, c_char_p]   
-
-        encoding = self.encoding
+        encoding = self.ioLocale.split(b".")[-1].decode("utf-8")
+        if self.ioUtf8: encoding = "utf-8"
+        
         varSets_ = []
         for varName, varSet in varSets.items():
             if isinstance(varName, bytes):
@@ -814,6 +813,8 @@ class Header(Generic):
             pair = "%s= %s" % (varName, varSet)
             varSets_.append((pair).encode(encoding))
 
+        func = self.spssio.spssSetVariableSets
+        func.argtypes = [c_int, c_char_p]   
         varSets_ = c_char_py3k(b"\n".join(varSets_))
         retcode = func(self.fh, varSets_)
         if retcode:
