@@ -3,7 +3,7 @@ graft savReaderWriter/documentation
 graft savReaderWriter/unit_tests
 graft savReaderWriter/test_data
 graft savReaderWriter/spssio
-#prune savReaderWriter/spssio
+graft savReaderWriter/util
 include ez_setup.py
 include VERSION
 include COPYRIGHT
