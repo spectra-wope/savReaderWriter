@@ -10,6 +10,7 @@ from os.path import join
 from tempfile import gettempdir
 from collections import namedtuple
 from unittest.case import SkipTest
+from io import StringIO
 
 import nose
 from nose.tools import with_setup, assert_raises
@@ -55,7 +56,7 @@ def test_writerows_numpy():
     savFileName = "output_np.sav"
     with srw.SavWriter(savFileName, *args) as writer:
         writer.writerows(array)
-    with srw.SavReader(savFileName, recodeSysmisTo=None) as reader:
+    with srw.SavReader(savFileName) as reader:
         actual = reader.all(False)
     assert actual == desired, actual
         
@@ -67,6 +68,43 @@ def test_writerows_pandas():
     savFileName = "output_pd.sav"
     with srw.SavWriter(savFileName, *args) as writer:
         writer.writerows(df)
+    with srw.SavReader(savFileName) as reader:
+        actual = reader.all(False)
+    assert actual == desired, actual
+
+def test_writerows_pd_np_issue63():
+    """
+    issue #63 "ufunc 'isnan' not supported for the input types"
+    Caused by strings that contained NaN values
+    """
+    if skip:
+        raise SkipTest
+    buff = StringIO(u"""n1,n2,s1,s2
+    1,1,a,a
+    2,2,b,bb
+    3,,c,""")
+    desired = [[1.0, 1.0, b'a', b'a'], 
+               [2.0, 2.0, b'b', b'bb'], 
+               [3.0, None, b'c', b'']]
+
+    df = pd.read_csv(buff, chunksize=10**6, sep=',').get_chunk()
+    arr = df.values
+    savFileName = join(gettempdir(), "check.sav")
+    kwargs = dict(varNames = list(df),
+                  varTypes = dict(n1=0, n2=0, s1=1, s2=2),
+                  savFileName = savFileName,
+                  ioUtf8=True)
+
+    # numpy
+    with srw.SavWriter(**kwargs) as writer:
+          writer.writerows(arr)
+    with srw.SavReader(savFileName) as reader:
+        actual = reader.all(False)
+    assert actual == desired, actual
+
+    # pandas
+    with srw.SavWriter(**kwargs) as writer:
+          writer.writerows(df)
     with srw.SavReader(savFileName) as reader:
         actual = reader.all(False)
     assert actual == desired, actual

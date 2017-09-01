@@ -405,11 +405,18 @@ class SavWriter(Header):
                 
         if is_empty(records):                   
             raise ValueError("No data")
-        elif numpyOK and isinstance(records, np.ndarray):  # issue #25
-            records = np.where(np.isnan(records), self.sysmis, records)
+        elif numpyOK and pandasOK and isinstance(records, np.ndarray):  # issue #25
+            is_string = [bool(self.varTypes[v]) for v in self.varNames]
+            if any(is_string):
+                is_nan_string = is_string & pd.isnull(records)
+                records = np.where(is_nan_string, b'', records)
+            records = np.where(pd.isnull(records), self.sysmis, records)
             for i in xrange(len(records)):
                 self.writerow( records[i].tolist() )
         elif pandasOK and isinstance(records, pd.DataFrame):
+            is_string = records.dtypes == np.object
+            is_nan_string = is_string & pd.isnull(records)
+            records = records.where(~is_nan_string, b'')
             records = records.fillna(self.sysmis)
             for record in records.itertuples(index=False):
                 self.writerow(list(record))
