@@ -604,4 +604,4 @@ class Generic(object):
         self.wholeCaseOut.argtypes = [c_int, c_char_p]
         retcode = self.wholeCaseOut(self.fh, c_char_py3k(self.caseBuffer.raw))
         if retcode:
-            checkErrsWarns("Problem writing row\n" + record, retcode)
+            checkErrsWarns("Problem writing row\n%r" % record, retcode)
