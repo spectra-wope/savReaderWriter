@@ -1,6 +1,10 @@
 SavReaderWriter
 ===============
 
+**This is a fork of https://bitbucket.org/fomcl/savreaderwriter/src/master/ that is Python 3.10+ compatible.**
+
+See https://github.com/saulpw/visidata/issues/1867 for more details.
+
 A cross-platform Python interface to the IBM SPSS 
 Statistics Input Output Module. Read or Write SPSS
 system files (.sav, .zsav). Works with Python 2.7, 3.3, 3.4, 3.5, pypy

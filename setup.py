@@ -18,7 +18,7 @@ except:
 from setuptools import setup
 
 
-version = 3.4.4
+version = "3.4.4"
 
 
 #####
@@ -119,5 +119,4 @@ setup(name='savReaderWriter',
                    'Programming Language :: Python :: Implementation :: PyPy',
                    'Topic :: Database'],
       version=version,
-      cmdclass=versioneer.get_cmdclass()
       )
