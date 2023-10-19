@@ -9,7 +9,6 @@
 import os
 import sys
 import platform
-import versioneer
 from os.path import join, dirname
 try:
     from ez_setup import use_setuptools
@@ -19,13 +18,7 @@ except:
 from setuptools import setup
 
 
-# automatic labeling of dists
-versioneer.VCS = 'git'
-versioneer.versionfile_source = 'savReaderWriter/_version.py'
-versioneer.versionfile_build = 'savReaderWriter/_version.py'
-versioneer.tag_prefix = 'v'  # tags are like v1.2.0
-versioneer.parentdir_prefix = 'savReaderWriter-'
-version = versioneer.get_version()
+version = 3.4.4
 
 
 #####
