@@ -5,7 +5,6 @@ from ctypes import *
 import os
 import time
 import locale
-from collections import Iterable
 
 try:
     pandasOK = True
@@ -37,16 +36,16 @@ class SavWriter(Header):
     savFileName : str
         The file name of the spss data file.
 
-        * File names that end with '.sav' are compressed using the 'old' 
+        * File names that end with '.sav' are compressed using the 'old'
           compression scheme
-        * File names that end with '_uncompressed.sav' are, well, not 
-          compressed. This is useful when you intend to read the files with 
+        * File names that end with '_uncompressed.sav' are, well, not
+          compressed. This is useful when you intend to read the files with
           the faster :py:class:`savReaderWriter.SavReaderNp` class
-        * File names that end with '.zsav' are compressed using the ZLIB 
+        * File names that end with '.zsav' are compressed using the ZLIB
           (ZSAV) compression scheme (requires v21 SPSS I/O files)
     varNames : list
         list of of strings of the variable names in the order in which they
-        should appear in the spss data file. See also under 
+        should appear in the spss data file. See also under
         :py:meth:`savReaderWriter.Header.varNamesTypes`.
     varTypes : dict
         varTypes dictionary `{varName: varType}`
@@ -56,12 +55,12 @@ class SavWriter(Header):
         See also under :py:meth:`savReaderWriter.Header.varNamesTypes`.
 
     valueLabels : dict, optional
-        value label dictionary ``{varName: {value: label}}`` Cf. 
-        `VALUE LABELS`. See also under 
+        value label dictionary ``{varName: {value: label}}`` Cf.
+        `VALUE LABELS`. See also under
         :py:meth:`savReaderWriter.Header.valueLabels`.
     varLabels : dict, optional
         variable label dictionary ``{varName: varLabel}``. Cf.
-        `VARIABLE LABELS`. See also under 
+        `VARIABLE LABELS`. See also under
         :py:meth:`savReaderWriter.Header.varLabels`.
     formats : dict, optional
         format dictionary ``{varName: printFmt}``. Cf. `FORMATS`.
@@ -69,7 +68,7 @@ class SavWriter(Header):
         :ref:`formats` and under :ref:`dateformats`.
     missingValues : dict, optional
         missing values dictionary ``{varName: {missing value spec}}``.
-        Cf. `MISSING VALUES`. See also under 
+        Cf. `MISSING VALUES`. See also under
         :py:meth:`savReaderWriter.Header.missingValues`
 
     measureLevels : dict, optional
@@ -83,7 +82,7 @@ class SavWriter(Header):
             be set, if used
     columnWidths : dict, optional
         column display width dictionary ``{varName: <int>}``.
-        Cf. `VARIABLE WIDTH`. (default: None --> >= 10 [stringVars] or 
+        Cf. `VARIABLE WIDTH`. (default: None --> >= 10 [stringVars] or
         automatic [numVars])
         See also under :py:meth:`savReaderWriter.Header.columnWidths`.
     alignments : dict, optional
@@ -92,7 +91,7 @@ class SavWriter(Header):
         See also under :py:meth:`savReaderWriter.Header.alignments`.
 
     varSets : dict, optional
-        sets dictionary ``{setName: list_of_valid_varNames}``. 
+        sets dictionary ``{setName: list_of_valid_varNames}``.
         Cf. `SETSMR` command.
         See also under :py:meth:`savReaderWriter.Header.varSets`
     varRoles : dict, optional
@@ -106,15 +105,15 @@ class SavWriter(Header):
         See also under :py:meth:`savReaderWriter.Header.varAttributes`.
     fileAttributes : dict, optional
         file attributes dictionary ``{attribName: attribValue}``.
-        Cf. FILE ATTRIBUTES. See also under 
+        Cf. FILE ATTRIBUTES. See also under
         :py:meth:`savReaderWriter.Header.fileAttributes`.
-    fileLabel : dict, optional 
+    fileLabel : dict, optional
         file label string, which defaults to "File created by user
         <username> at <datetime>" is file label is None. Cf. `FILE LABEL`
         See also under :py:meth:`savReaderWriter.Header.fileLabel`.
     multRespDefs : dict, optional
         multiple response sets definitions (dichotomy groups or
-        category groups) dictionary ``{setName: <set definition>}``. In SPSS 
+        category groups) dictionary ``{setName: <set definition>}``. In SPSS
         syntax, 'setName' has a dollar prefix ('$someSet'). Cf. `MRSETS`.
         See also under :py:meth:`savReaderWriter.Header.multRespDefs`.
 
@@ -125,19 +124,19 @@ class SavWriter(Header):
         indicates whether an existing SPSS file should be overwritten
     ioUtf8 : bool, optional
         indicates the mode in which text communicated to or from the
-        I/O Module will be. This refers to unicode mode (`SET UNICODE=ON`) 
+        I/O Module will be. This refers to unicode mode (`SET UNICODE=ON`)
         and codepage mode in SPSS (`SET UNICODE=OFF`).
         See also under :py:meth:`savReaderWriter.Generic.ioUtf8` and
 	under ``ioUtf8`` in :py:class:`savReaderWriter.SavReader`.
 
         * `ioUtf8=False`. Use the current ioLocale setting to determine the
           encoding for writing data.
-        * `ioUtf8=True`. Use Unicode encoding (UTF-8) for writing data. 
+        * `ioUtf8=True`. Use Unicode encoding (UTF-8) for writing data.
 
         Note: Data files saved in Unicode encoding cannot be read by versions
         of IBM SPSS Statistics prior to 16. Unicode mode is the default since
-        IBM SPSS Statistics version 21. When opening code page IBM SPSS 
-        Statistics data files in Unicode mode or saving data files as Unicode 
+        IBM SPSS Statistics version 21. When opening code page IBM SPSS
+        Statistics data files in Unicode mode or saving data files as Unicode
         in codepage mode, defined string widths are automatically *tripled*.
 
         .. seealso::
@@ -156,15 +155,15 @@ class SavWriter(Header):
       * "cp" --> copy: initialize header using ``refSavFileName`` as a reference
         file, cf. `APPLY DICTIONARY`.
     refSavFileName : str, optional
-      reference file that should be used to initialize the header (aka the 
+      reference file that should be used to initialize the header (aka the
       SPSS data dictionary) containing variable label, value label, missing
-      value, etc. etc. definitions. Only relevant in conjunction with 
+      value, etc. etc. definitions. Only relevant in conjunction with
       ``mode="cp"``.
-   
+
     See also
     --------
 
-    savReaderWriter.Header : for details about how to define individual 
+    savReaderWriter.Header : for details about how to define individual
         metadata items
 
     Examples
@@ -185,7 +184,7 @@ class SavWriter(Header):
                  measureLevels=None, columnWidths=None, alignments=None,
                  varSets=None, varRoles=None, varAttributes=None,
                  fileAttributes=None, fileLabel=None, multRespDefs=None,
-                 caseWeightVar=None, overwrite=True, ioUtf8=False, 
+                 caseWeightVar=None, overwrite=True, ioUtf8=False,
                  ioLocale=None, mode=b"wb", refSavFileName=None):
         """ Constructor. Initializes all vars that can be recycled """
         super(Header, self).__init__(savFileName, ioUtf8, ioLocale)
@@ -245,8 +244,8 @@ class SavWriter(Header):
 
         .. warning::
 
-            Always ensure the the .sav file is properly closed, either by 
-            using a context manager (``with`` statement) or by using 
+            Always ensure the the .sav file is properly closed, either by
+            using a context manager (``with`` statement) or by using
             ``close()``"""
         if type is not None:
             pass  # Exception occurred
@@ -272,7 +271,7 @@ class SavWriter(Header):
         if overwrite or not os.path.exists(savFileName):
             if b and fn_endswith(b".zsav") or u and fn_endswith(u".zsav"):
                 self.fileCompression = b"zlib"  # only with v21 libraries!
-            elif ( b and fn_endswith(b"_uncompressed.sav") or 
+            elif ( b and fn_endswith(b"_uncompressed.sav") or
                    u and fn_endswith(u"_uncompressed.sav") ):
                 self.fileCompression = b"uncompressed"
             else:
@@ -383,16 +382,16 @@ class SavWriter(Header):
 
     def writerows(self, records):
         """This function writes all records.
-        
+
         Parameters
         ----------
         records : list, tuple, numpy.ndarray, pandas.DataFrame, or similar
             the records to be written to the .sav file
-            
+
         Raises
         ------
         TypeError : if the records instance is not of a suitable type
-        ValueError : if bool(records) == False, or if the array/DataFrame 
+        ValueError : if bool(records) == False, or if the array/DataFrame
             is empty
         """
         def is_empty(records):
@@ -402,8 +401,8 @@ class SavWriter(Header):
                 return not records.size
             else:
                 return not records
-                
-        if is_empty(records):                   
+
+        if is_empty(records):
             raise ValueError("No data")
         elif numpyOK and pandasOK and isinstance(records, np.ndarray):  # issue #25
             is_string = [bool(self.varTypes[v]) for v in self.varNames]
@@ -420,7 +419,7 @@ class SavWriter(Header):
             records = records.fillna(self.sysmis)
             for record in records.itertuples(index=False):
                 self.writerow(list(record))
-        elif isinstance(records, Iterable) and hasattr(records[0], "__iter__"):
+        elif hasattr(records[0], "__iter__"):
             for record in records:           # (named)tuple
                 self.writerow(list(record))  # need item assignment
         else:
@@ -432,7 +431,7 @@ class SavWriter(Header):
                 if numpyOK: types += (np.array, )
                 if pandasOK: types += (pd.DataFrame,)
                 if not isinstance(records, types):
-                    msg = ('records instance type must be one of list, tuple, ' 
+                    msg = ('records instance type must be one of list, tuple, '
                            'numpy.array, pandas.DataFrame but got %s')
                     raise TypeError( msg % (type(records), ))
                 raise
