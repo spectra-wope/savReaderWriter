@@ -358,9 +358,20 @@ class SavWriter(Header):
         float_ = float
         encoding = self.encoding
         pad_string = self.pad_string
+        # wope debug 2024-03-12
+        #print("wope debug records:")
+        #print(len(record))
+        #print(self.ioUtf8_)
         for i, value in enumerate(record):
             varName = self.varNames[i]
             varType = self.varTypes[varName]
+
+            # wope debug 2024-03-12
+            #print("wope debug records2:")
+            #print(varName)
+            
+            
+            
             if varType == 0:
                 try:
                     value = float_(value)
@@ -369,7 +380,27 @@ class SavWriter(Header):
             else:
                 value = pad_string(value, varType)
                 if self.ioUtf8_ and isinstance(value, unicode):
+                    # wope debug 2024-03-12
+                    #print("wope debug records3 utf8:")
+                    #print(varName)
+                    #print(self.ioUtf8_)
+                
                     value = value.encode("utf-8")
+                else:
+                    if self.ioUtf8_ == False:
+                        #print("wope debug records4 cp1251:")
+                        #print(isinstance(value, unicode))
+                        if isinstance(value, unicode):
+                            #print(value)
+                            #print(varType)
+                         
+                            value = value.encode("Windows-1252")
+                    
+                    try:
+                    # wope 2024-03-12
+                        value = value.encode("CP1251")
+                    except:
+                        pass
             record[i] = value
         self.record = record
 

@@ -337,6 +337,10 @@ class Generic(object):
                 endianness = ">"
             else:                         # pragma: no cover
                 endianness = "@"
+# wope 2024-03-13:
+        else:
+            print(f"Unexpected mode: {mode}")  # Debugging-Ausgabe
+            endianness = "@"  # Standardwert, wenn Modus nicht erkannt wird
         structFmt = [endianness]
         ceil = math.ceil
         for varName in varNames:
